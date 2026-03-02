@@ -1,0 +1,61 @@
+# 使用本地已编译的 JAR 文件构建 Docker 镜像
+# 使用方法: docker build -f docker/wvp/Dockerfile.local -t wvp-pro:latest .
+
+FROM eclipse-temurin:21-jdk
+
+# 设置时区
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 创建工作目录
+RUN mkdir -p /opt/wvp /opt/ylcx/wvp /opt/wvp/logs
+WORKDIR /opt/wvp
+
+# 从本地复制已编译的 JAR 文件
+# 注意：构建上下文应该是项目根目录，确保 target/wvp-pro-*.jar 文件存在
+COPY target/wvp-pro-*.jar /opt/wvp/wvp.jar
+
+# 复制配置文件（构建上下文是项目根目录）
+COPY docker/wvp/wvp /opt/ylcx/wvp
+
+# 设置工作目录为 /opt/ylcx（与配置文件路径一致）
+WORKDIR /opt/ylcx
+
+# 配置 apt 使用国内镜像源（阿里云镜像）
+# 先尝试修改现有源，如果失败则创建新的源文件
+RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
+        sed -i 's|http://ports.ubuntu.com|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/ubuntu.sources || true; \
+        sed -i 's|http://archive.ubuntu.com|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/ubuntu.sources || true; \
+    fi && \
+    if [ -f /etc/apt/sources.list ]; then \
+        sed -i 's|http://archive.ubuntu.com|http://mirrors.aliyun.com|g' /etc/apt/sources.list || true; \
+        sed -i 's|http://ports.ubuntu.com|http://mirrors.aliyun.com|g' /etc/apt/sources.list || true; \
+    fi
+
+# 安装 curl 用于健康检查（忽略部分源错误，只安装基本包）
+RUN apt-get update --allow-releaseinfo-change || apt-get update || true && \
+    apt-get install -y --no-install-recommends curl || \
+    (apt-get update && apt-get install -y --no-install-recommends curl) && \
+    rm -rf /var/lib/apt/lists/*
+
+# 健康检查（检查 HTTP 服务是否正常）
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:18978/api/user/login || exit 1
+
+# 暴露端口
+EXPOSE 18978/tcp
+EXPOSE 8116/tcp
+EXPOSE 8116/udp
+EXPOSE 21078/tcp
+EXPOSE 21078/udp
+
+# 启动 WVP 服务
+ENTRYPOINT ["java", \
+  "-Xms512m", \
+  "-Xmx1024m", \
+  "-XX:+HeapDumpOnOutOfMemoryError", \
+  "-XX:HeapDumpPath=/opt/wvp/logs/", \
+  "-jar", \
+  "/opt/wvp/wvp.jar", \
+  "--spring.config.location=/opt/ylcx/wvp/application.yml"]
+

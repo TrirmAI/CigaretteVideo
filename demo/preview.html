@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WVP-Pro OpenAPI Demo 预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .preview-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        .demo-frame {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .demo-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .info-section {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .info-section h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .info-section li {
+            color: #666;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .info-section li:last-child {
+            border-bottom: none;
+        }
+        .info-section li strong {
+            color: #333;
+            display: inline-block;
+            width: 120px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary {
+            background: #409eff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #66b1ff;
+        }
+        .btn-secondary {
+            background: #67c23a;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #85ce61;
+        }
+        .btn-outline {
+            background: white;
+            color: #409eff;
+            border: 2px solid #409eff;
+        }
+        .btn-outline:hover {
+            background: #ecf5ff;
+        }
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .status.success {
+            background: #f0f9ff;
+            color: #67c23a;
+            border: 1px solid #b3e19d;
+        }
+        .status.error {
+            background: #fef0f0;
+            color: #f56c6c;
+            border: 1px solid #fbc4c4;
+        }
+        .status.info {
+            background: #f4f4f5;
+            color: #909399;
+            border: 1px solid #d3d4d6;
+        }
+        @media (max-width: 768px) {
+            .preview-container {
+                padding: 20px;
+            }
+            .demo-frame {
+                height: 500px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <div class="header">
+            <h1>🎥 WVP-Pro OpenAPI Demo</h1>
+            <p>视频目录树查询和播放功能演示</p>
+        </div>
+
+        <div id="status" class="status info">
+            <strong>状态：</strong>正在加载预览...
+        </div>
+
+        <div class="demo-frame">
+            <iframe id="demoFrame" src="http://localhost:3000" frameborder="0"></iframe>
+        </div>
+
+        <div class="info-section">
+            <h2>📋 功能特性</h2>
+            <ul>
+                <li><strong>设备目录树</strong>：懒加载展示设备和通道</li>
+                <li><strong>搜索功能</strong>：支持设备/通道搜索</li>
+                <li><strong>视频播放</strong>：支持 FLV/HLS/WebRTC 多协议</li>
+                <li><strong>实时状态</strong>：显示在线/离线状态</li>
+                <li><strong>流信息</strong>：显示详细的流媒体信息</li>
+            </ul>
+        </div>
+
+        <div class="info-section">
+            <h2>🔧 使用说明</h2>
+            <ul>
+                <li><strong>前提条件</strong>：需要 WVP-Pro 服务运行在 localhost:18080</li>
+                <li><strong>认证 Token</strong>：需要在浏览器控制台设置 localStorage.setItem('wvp-token', 'your-token')</li>
+                <li><strong>操作步骤</strong>：点击左侧设备节点展开通道，点击通道开始播放</li>
+            </ul>
+        </div>
+
+        <div class="actions">
+            <a href="http://localhost:3000" target="_blank" class="btn btn-primary">🚀 打开独立窗口</a>
+            <button onclick="reloadFrame()" class="btn btn-secondary">🔄 刷新预览</button>
+            <a href="https://github.com" target="_blank" class="btn btn-outline">📚 查看文档</a>
+        </div>
+    </div>
+
+    <script>
+        const frame = document.getElementById('demoFrame');
+        const status = document.getElementById('status');
+
+        // 检查 iframe 加载状态
+        frame.onload = function() {
+            status.className = 'status success';
+            status.innerHTML = '<strong>状态：</strong>✅ 预览已加载成功';
+        };
+
+        frame.onerror = function() {
+            status.className = 'status error';
+            status.innerHTML = '<strong>状态：</strong>❌ 无法加载预览，请确保开发服务器正在运行（npm run dev）';
+        };
+
+        // 5秒后检查连接
+        setTimeout(() => {
+            try {
+                frame.contentWindow.document;
+                status.className = 'status success';
+                status.innerHTML = '<strong>状态：</strong>✅ 预览已加载成功';
+            } catch (e) {
+                status.className = 'status error';
+                status.innerHTML = '<strong>状态：</strong>❌ 无法连接到预览服务器，请运行 <code>npm run dev</code> 启动开发服务器';
+            }
+        }, 5000);
+
+        function reloadFrame() {
+            frame.src = frame.src;
+            status.className = 'status info';
+            status.innerHTML = '<strong>状态：</strong>正在刷新预览...';
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/vite.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WVP-Pro OpenAPI Demo - 视频目录树</title>
+    <!-- WebRTC 播放器库 -->
+    <!-- 优先从 WVP 服务器加载，如果失败则尝试从流媒体服务器加载 -->
+    <script>
+      // 动态加载 ZLMRTCClient，支持多个备用地址
+      (function() {
+        const scripts = [
+          '/api/static/js/ZLMRTCClient.js',  // 通过代理从 WVP 服务器加载
+          'http://localhost:18080/static/js/ZLMRTCClient.js',  // 直接访问 WVP 服务器
+          'http://127.0.0.1:18080/static/js/ZLMRTCClient.js'   // 备用地址
+        ];
+        
+        let currentIndex = 0;
+        
+        function loadScript(src) {
+          return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+        
+        function tryLoadNext() {
+          if (currentIndex >= scripts.length) {
+            console.error('无法加载 ZLMRTCClient.js，请检查网络连接或服务器配置');
+            return;
+          }
+          
+          loadScript(scripts[currentIndex])
+            .then(() => {
+              console.log('ZLMRTCClient.js 加载成功:', scripts[currentIndex]);
+            })
+            .catch(() => {
+              console.warn('加载失败:', scripts[currentIndex]);
+              currentIndex++;
+              tryLoadNext();
+            });
+        }
+        
+        tryLoadNext();
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
+

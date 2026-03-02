@@ -1,0 +1,46 @@
+FROM eclipse-temurin:21-jdk
+
+# 设置时区
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 创建工作目录
+RUN mkdir -p /opt/wvp /opt/ylcx/wvp /opt/wvp/logs
+WORKDIR /opt/wvp
+
+# 复制 JAR 文件（从宿主机挂载或COPY）
+COPY wvp.jar /opt/wvp/wvp.jar
+
+# 复制配置文件
+COPY wvp /opt/ylcx/wvp
+
+# 设置工作目录为 /opt/ylcx（与配置文件路径一致）
+WORKDIR /opt/ylcx
+
+# 安装 curl 用于健康检查
+RUN apt-get update && \
+    apt-get install -y --fix-missing curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# 健康检查（检查 HTTP 服务是否正常）
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:18978/api/user/login || exit 1
+
+# 暴露端口
+EXPOSE 18978/tcp
+EXPOSE 8116/tcp
+EXPOSE 8116/udp
+EXPOSE 21078/tcp
+EXPOSE 21078/udp
+
+# 启动 WVP 服务
+# 使用配置文件目录，Spring Boot会自动加载application.yml和application-docker.yml
+ENTRYPOINT ["java", \
+  "-Xms512m", \
+  "-Xmx1024m", \
+  "-XX:+HeapDumpOnOutOfMemoryError", \
+  "-XX:HeapDumpPath=/opt/wvp/logs/", \
+  "-jar", \
+  "/opt/wvp/wvp.jar", \
+  "--spring.config.location=file:/opt/ylcx/wvp/"]
+

@@ -1,0 +1,124 @@
+version: '3'
+services:
+  polaris-redis:
+    image: redis:latest
+    container_name: polaris-redis
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - media-net
+    volumes:
+      - ./volumes/redis/data/:/data
+    environment:
+      TZ: "Asia/Shanghai"
+    command: redis-server --appendonly yes
+
+  polaris-mysql:
+    image: mysql:8
+    container_name: polaris-mysql
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - media-net
+    environment:
+      MYSQL_DATABASE: wvp
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: wvp_user
+      MYSQL_PASSWORD: wvp_password
+      TZ: Asia/Shanghai
+    volumes:
+      - ./volumes/mysql/data:/var/lib/mysql
+      - ./logs/mysql:/logs
+    command: [
+          '--innodb-buffer-pool-size=80M',
+          '--character-set-server=utf8mb4',
+          '--collation-server=utf8mb4_general_ci',
+          '--default-time-zone=+8:00',
+          '--lower-case-table-names=1'
+        ]
+
+  polaris-media:
+    image: zlmediakit/zlmediakit:master
+    container_name: polaris-media
+    restart: always
+    networks:
+      - media-net
+    ports:
+      - "8080:80/tcp"
+      - "${MediaRtmp:-10935}:${MediaRtmp:-10935}/tcp"
+      - "${MediaRtmp:-10935}:${MediaRtmp:-10935}/udp"
+      - "${MediaRtsp:-5540}:${MediaRtsp:-5540}/tcp"
+      - "${MediaRtsp:-5540}:${MediaRtsp:-5540}/udp"
+      - "${MediaRtp:-10000}:${MediaRtp:-10000}/tcp"
+      - "${MediaRtp:-10000}:${MediaRtp:-10000}/udp"
+      - "8001:8001/tcp"
+      - "8001:8001/udp"
+    volumes:
+      - ./volumes/video:/opt/media/bin/www/record/
+      - ./logs/media:/opt/media/log/
+      - ./media/config.ini:/conf/config.ini
+    command: [
+        'MediaServer',
+        '-c', '/conf/config.ini',
+        '-l', '0'
+    ]
+
+  polaris-wvp:
+    image: wvp-pro:latest
+    container_name: polaris-wvp
+    restart: always
+    networks:
+      - media-net
+    ports:
+      - "${WVP_HTTP_PORT:-18978}:18978/tcp"
+      - "${SIP_Port:-8116}:${SIP_Port:-8116}/udp"
+      - "${SIP_Port:-8116}:${SIP_Port:-8116}/tcp"
+      - "${JT1078_Port:-21078}:21078/tcp"
+      - "${JT1078_Port:-21078}:21078/udp"
+    depends_on:
+      - polaris-media
+      - polaris-redis
+      - polaris-mysql
+    volumes:
+      - ./wvp/config:/opt/wvp/config
+      - ./wvp/wvp/:/opt/ylcx/wvp/
+      - ./logs/wvp:/opt/wvp/logs/
+    environment:
+      TZ: "Asia/Shanghai"
+      Stream_IP: ${Stream_IP:-172.31.127.47}
+      SDP_IP: ${SDP_IP:-172.31.127.47}
+      ZLM_HOOK_HOST: polaris-wvp
+      ZLM_HOST: polaris-media
+      ZLM_SERCERT: su6TiedN2rVAmBbIDX0aa0QTiBJLBdcf
+      MediaHttp: ${WebHttp:-8080}
+      MediaRtmp: ${MediaRtmp:-10935}
+      MediaRtsp: ${MediaRtsp:-5540}
+      MediaRtp: ${MediaRtp:-10000}
+      REDIS_HOST: polaris-redis
+      REDIS_PORT: 6379
+      DATABASE_HOST: polaris-mysql
+      DATABASE_PORT: 3306
+      DATABASE_USER: wvp_user
+      DATABASE_PASSWORD: wvp_password
+      SIP_ShowIP: ${SIP_ShowIP}
+      SIP_Port: ${SIP_Port:-8116}
+      SIP_Domain: ${SIP_Domain}
+      SIP_Id: ${SIP_Id}
+      SIP_Password: ${SIP_Password}
+      RecordSip: ${RecordSip}
+      RecordPushLive: ${RecordPushLive}
+
+networks:
+  media-net:
+    driver: bridge
+

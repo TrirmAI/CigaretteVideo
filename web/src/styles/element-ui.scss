@@ -1,0 +1,155 @@
+// cover some element-ui styles
+
+.el-breadcrumb__inner,
+.el-breadcrumb__inner a {
+  font-weight: 400 !important;
+}
+
+.el-upload {
+  input[type="file"] {
+    display: none !important;
+  }
+}
+
+.el-upload__input {
+  display: none;
+}
+
+
+// to fixed https://github.com/ElemeFE/element/issues/2461
+.el-dialog {
+  transform: none;
+  left: 0;
+  position: relative;
+  margin: 0 auto;
+}
+
+// refine element ui upload
+.upload-container {
+  .el-upload {
+    width: 100%;
+
+    .el-upload-dragger {
+      width: 100%;
+      height: 200px;
+    }
+  }
+}
+
+// dropdown
+.el-dropdown-menu {
+  a {
+    display: block
+  }
+}
+
+// to fix el-date-picker css style
+.el-range-separator {
+  box-sizing: content-box;
+}
+
+// Global Element UI Theme Overrides for Tobacco Green (#006838)
+
+// Primary Button
+.el-button--primary {
+  background-color: #006838 !important;
+  border-color: #006838 !important;
+  
+  &:hover, &:focus {
+    background-color: #00854d !important; // Lighter green for hover
+    border-color: #00854d !important;
+  }
+  
+  &:active {
+    background-color: #004d2a !important; // Darker green for active
+    border-color: #004d2a !important;
+  }
+  
+  &.is-disabled {
+    background-color: #a0cfff !important; // Default disabled or adjust to green tint if needed
+    border-color: #a0cfff !important;
+    background-color: #8ccba8 !important; // Green tint disabled
+    border-color: #8ccba8 !important;
+  }
+}
+
+// Text Button (often used in tables)
+.el-button--text {
+  color: #006838 !important;
+  
+  &:hover, &:focus {
+    color: #00854d !important;
+  }
+}
+
+// Pagination
+.el-pagination {
+  &.is-background .el-pager li:not(.disabled).active {
+    background-color: #006838 !important;
+    color: #FFF !important;
+  }
+}
+
+// Checkbox
+.el-checkbox__input.is-checked .el-checkbox__inner,
+.el-checkbox__input.is-indeterminate .el-checkbox__inner {
+  background-color: #006838 !important;
+  border-color: #006838 !important;
+}
+.el-checkbox__input.is-checked + .el-checkbox__label {
+  color: #006838 !important;
+}
+
+// Radio
+.el-radio__input.is-checked .el-radio__inner {
+  border-color: #006838 !important;
+  background: #006838 !important;
+}
+.el-radio__input.is-checked + .el-radio__label {
+  color: #006838 !important;
+}
+
+// Switch
+.el-switch.is-checked .el-switch__core {
+  border-color: #006838 !important;
+  background-color: #006838 !important;
+}
+.el-switch__label.is-active {
+  color: #006838 !important;
+}
+
+// Tabs
+.el-tabs__item.is-active {
+  color: #006838 !important;
+}
+.el-tabs__active-bar {
+  background-color: #006838 !important;
+}
+.el-tabs__item:hover {
+  color: #006838 !important;
+}
+
+// Input Focus
+.el-input__inner:focus, .el-textarea__inner:focus {
+  border-color: #006838 !important;
+}
+
+// Select/Dropdown Options
+.el-select-dropdown__item.selected {
+  color: #006838 !important;
+}
+
+// Loading Spinner
+.el-loading-spinner .path {
+  stroke: #006838 !important;
+}
+.el-loading-spinner .el-loading-text {
+  color: #006838 !important;
+}
+
+// Tags (optional, keep default or tint)
+.el-tag {
+  background-color: #f0f9eb;
+  border-color: #e1f3d8;
+  color: #006838;
+}

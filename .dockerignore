@@ -1,0 +1,75 @@
+# Git 相关
+.git
+.gitignore
+.gitattributes
+
+# IDE 相关
+.idea
+.vscode
+*.iml
+*.swp
+*.swo
+*~
+
+# 构建产物（但保留 JAR 文件用于本地构建）
+target/
+!target/*.jar
+dist/
+build/
+*.war
+*.class
+
+# 日志文件
+logs/
+*.log
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 文档和说明文件
+*.md
+doc/
+README.md
+LICENSE
+
+# Docker 相关（避免递归复制）
+docker/volumes/
+docker/logs/
+
+# 数据库文件
+数据库/
+
+# 测试文件
+test/
+tests/
+*.test.js
+*.spec.js
+
+# 配置文件（Docker 环境使用专门的配置）
+application-dev.yml
+application-local.yml
+
+# Node 相关（前端构建产物）
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# 前端构建产物
+web/dist/
+web/node_modules/
+demo/dist/
+demo/node_modules/
+
+# 其他
+*.bak
+*.backup
+.env
+.env.local

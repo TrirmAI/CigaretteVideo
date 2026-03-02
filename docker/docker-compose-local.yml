@@ -1,0 +1,99 @@
+version: '3'
+services:
+  # Redis服务 - 用于本地开发
+  polaris-redis:
+    image: redis:latest
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "6379:6379"  # 暴露端口供本地访问
+    volumes:
+      - ./redis/conf/redis.conf:/opt/polaris/redis/redis.conf
+      - ./volumes/redis/data/:/data
+    environment:
+      TZ: "Asia/Shanghai"
+    command: redis-server /opt/polaris/redis/redis.conf --appendonly yes
+
+  # MySQL服务 - 用于本地开发
+  polaris-mysql:
+    image: mysql:8
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+      - "3306:3306"  # 暴露端口供本地访问
+    environment:
+      MYSQL_DATABASE: wvp
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: wvp_user
+      MYSQL_PASSWORD: wvp_password
+      TZ: Asia/Shanghai
+    volumes:
+      - ./mysql/conf:/etc/mysql/conf.d
+      - ./logs/mysql:/logs
+      - ./volumes/mysql/data:/var/lib/mysql  
+      - ../数据库/2.7.4/初始化-mysql-2.7.4.sql:/docker-entrypoint-initdb.d/init.sql
+    command: [
+          '--innodb-buffer-pool-size=80M',
+          '--character-set-server=utf8mb4',
+          '--collation-server=utf8mb4_general_ci',
+          '--default-time-zone=+8:00',
+          '--lower-case-table-names=1'
+        ]
+
+  # 流媒体服务器 ZLMediaKit
+  polaris-media:
+    image: zlmediakit/zlmediakit:master
+    restart: always
+    ports:
+      - "${WebHttp:-8080}:80/tcp"     # [播流]HTTP  用于 WVP 应用访问流媒体服务器
+      - "${MediaRtmp:-10001}:${MediaRtmp:-10001}/tcp"   # [收流]RTMP  
+      - "${MediaRtmp:-10001}:${MediaRtmp:-10001}/udp"   # [收流]RTMP  
+      - "${MediaRtsp:-10002}:${MediaRtsp:-10002}/tcp"     # [收流]RTSP  
+      - "${MediaRtsp:-10002}:${MediaRtsp:-10002}/udp"     # [收流]RTSP  
+      - "${MediaRtp:-10003}:${MediaRtp:-10003}/tcp"   # [收流]RTP   
+      - "${MediaRtp:-10003}:${MediaRtp:-10003}/udp"   # [收流]RTP
+      - "8001:8001/tcp"   # [WebRTC]TCP 端口
+      - "8001:8001/udp"   # [WebRTC]UDP 端口
+    # 注意: RTP多端口范围(40000-45000)在Docker Compose中需要特殊处理
+    # 如果需要使用多端口模式，可以考虑使用host网络模式或手动映射端口
+    volumes:
+      - ./volumes/video:/opt/media/bin/www/record/
+      - ./logs/media:/opt/media/log/
+      - ./media/config.ini:/conf/config.ini
+      - ./media/entrypoint.sh:/entrypoint.sh
+    environment:
+      SIP_ShowIP: ${SIP_ShowIP}
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    command: [
+        'MediaServer',
+        '-c', '/conf/config.ini',
+        '-l', '0'
+    ]
+
+  # MinIO 对象存储
+  minio:
+    image: quay.io/minio/minio:latest
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: wvp_minio_123456
+      MINIO_SERVER_URL: "http://192.168.1.101:9000"
+      MINIO_BROWSER_REDIRECT_URL: "http://192.168.1.101:9001"
+    volumes:
+      - ./volumes/minio/data:/data
+      - ./volumes/minio/config:/root/.minio
+    command: server /data --console-address ":9001"
+

@@ -1,0 +1,217 @@
+:root {
+  /* Light Theme - Unified White with Green Accents */
+  --bg-color: #f1f8e9; /* Login page lightest green */
+  --container-bg: #ffffff;
+  --text-color-primary: #303133;
+  --text-color-regular: #606266;
+  --text-color-secondary: #909399;
+  --border-color-base: #DCDFE6;
+  --border-color-light: #E4E7ED;
+  
+  --header-bg: #ffffff;
+  --header-text: #303133;
+  
+  /* Sidebar - White Base with Green Accents */
+  --menu-bg: #ffffff;
+  --menu-text: #303133;
+  --menu-active-text: #006838; /* Deep Tobacco Green */
+  --submenu-bg: #ffffff;
+  --submenu-hover: #e8f5e9; /* Light green hover */
+  
+  --tags-view-bg: #ffffff;
+  --tags-view-item-bg: #ffffff;
+  --tags-view-item-text: #495060;
+  --tags-view-item-border: #d8dce5;
+  --tags-view-item-active-text: #ffffff;
+  
+  --input-bg: #ffffff;
+
+  --player-bg: #f5f7fa; /* Light gray for empty player slots */
+  --player-text: #606266; /* Dark text for 'No Signal' */
+  --player-grid-gap: #ffffff; /* White gap between players */
+}
+
+[data-theme="dark"] {
+  /* Dark Theme - Simplified Neutral Gray (Material Design inspired) */
+  --bg-color: #121212;          /* Standard Dark Background */
+  --container-bg: #1e1e1e;      /* Elevated Surface (Card, Sidebar, Header) */
+  --text-color-primary: #e0e0e0;
+  --text-color-regular: #a0a0a0;
+  --text-color-secondary: #707070;
+  --border-color-base: #333333;
+  --border-color-light: #333333;
+
+  --header-bg: #1e1e1e;
+  --header-text: #e0e0e0;
+  --menu-bg: #1e1e1e;
+  --menu-text: #a0a0a0;
+  --menu-active-text: #006838;
+  --submenu-bg: #141414;        /* Inset for submenus */
+  --submenu-hover: #2c2c2c;     /* Lighter hover state */
+  
+  --tags-view-bg: #1e1e1e;
+  --tags-view-item-bg: #1e1e1e;
+  --tags-view-item-text: #a0a0a0;
+  --tags-view-item-border: #333333;
+  --tags-view-item-active-text: #ffffff;
+  
+  --input-bg: #2c2c2c;
+
+  --player-bg: #141414;
+  --player-text: #e0e0e0;
+  --player-grid-gap: #333333;
+
+  /* Element UI Dark Mode Overrides */
+  
+  /* Backgrounds & Text */
+  body, .app-wrapper, .main-container {
+    background-color: var(--bg-color);
+    color: var(--text-color-primary);
+  }
+
+  /* Cards & Containers */
+  .el-card {
+    background-color: var(--container-bg);
+    color: var(--text-color-primary);
+    border-color: var(--border-color-base);
+    
+    .el-card__header {
+      border-bottom-color: var(--border-color-base);
+    }
+  }
+
+  /* Tables */
+  .el-table {
+    background-color: var(--container-bg);
+    color: var(--text-color-regular);
+    border-color: var(--border-color-base);
+
+    th, tr {
+        background-color: var(--container-bg);
+    }
+    
+    td, th.is-leaf {
+        border-bottom-color: var(--border-color-base);
+    }
+
+    // Bordered Table Overrides
+    &--border, &--group {
+        border-color: var(--border-color-base);
+        
+        td, th {
+            border-right-color: var(--border-color-base);
+        }
+    }
+    
+    &::before {
+        background-color: var(--border-color-base);
+    }
+    
+    &::after {
+        background-color: var(--border-color-base);
+    }
+
+    // Hover row
+    &--enable-row-hover .el-table__body tr:hover>td {
+        background-color: var(--submenu-hover);
+    }
+  }
+
+  /* Inputs & Forms */
+  .el-input__inner, .el-textarea__inner {
+    background-color: var(--input-bg);
+    border-color: var(--border-color-base);
+    color: var(--text-color-primary);
+    
+    &:hover, &:focus {
+        border-color: var(--menu-active-text);
+    }
+  }
+
+  .el-input-group__append, .el-input-group__prepend {
+      background-color: var(--input-bg);
+      border-color: var(--border-color-base);
+      color: var(--text-color-regular);
+  }
+
+  /* Dialogs */
+  .el-dialog {
+    background-color: var(--container-bg);
+    
+    &__title {
+        color: var(--text-color-primary);
+    }
+    &__body {
+        color: var(--text-color-regular);
+    }
+  }
+
+  /* Dropdowns & Popovers */
+  .el-dropdown-menu, .el-select-dropdown, .el-picker-panel, .el-popover {
+    background-color: var(--container-bg);
+    border-color: var(--border-color-base);
+    
+    .el-dropdown-menu__item, .el-select-dropdown__item {
+        color: var(--text-color-regular);
+        &:hover {
+            background-color: var(--submenu-hover);
+            color: var(--text-color-primary);
+        }
+    }
+  }
+  
+  /* Pagination */
+  .el-pagination {
+    button:disabled, .btn-next, .btn-prev, li {
+        background-color: transparent !important;
+        color: var(--text-color-regular) !important;
+    }
+    &.is-background .el-pager li:not(.disabled) {
+        background-color: var(--border-color-base);
+        &.active {
+            background-color: var(--menu-active-text) !important;
+            color: #FFF !important;
+        }
+    }
+  }
+
+  /* Tree */
+  .el-tree {
+    background-color: var(--container-bg);
+    color: var(--text-color-regular);
+    
+    .el-tree-node__content:hover {
+        background-color: var(--submenu-hover);
+    }
+    .el-tree-node:focus > .el-tree-node__content {
+        background-color: var(--submenu-hover);
+    }
+  }
+  
+  /* TagsView Overrides for Dark Mode */
+  .tags-view-container {
+      background-color: var(--tags-view-bg) !important;
+      border-bottom-color: var(--border-color-base) !important;
+      
+      .tags-view-item {
+          background-color: var(--tags-view-item-bg) !important;
+          border-color: var(--tags-view-item-border) !important;
+          color: var(--tags-view-item-text) !important;
+          &.active {
+              background-color: var(--menu-active-text) !important;
+              color: var(--tags-view-item-active-text) !important;
+              border-color: var(--menu-active-text) !important;
+              &::before {
+                  background: #fff;
+              }
+          }
+      }
+      .contextmenu {
+          background: var(--container-bg) !important;
+          color: var(--text-color-primary) !important;
+          li:hover {
+              background: var(--submenu-hover) !important;
+          }
+      }
+  }
+}
